@@ -6,10 +6,7 @@ void setup() {
   table = loadTable("data.csv", "header");
   println(table.getRowCount() + " total rows in table");
 
-//for (TableRow row : table.rows()) {
-//    double nums = row.getDouble("Production");
-//    println(nums);
-//    }
+
 
  int size = table.getRowCount();
     int[] array = new int[size];        
