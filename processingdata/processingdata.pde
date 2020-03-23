@@ -2,7 +2,7 @@ Table table;
 String string;
 
 int num = 1024; //setting the length of array thus dividing the canvas in columns
-float[] arrayOfFloats = new float[num]; 
+//float[] arrayOfFloats = new float[num]; 
 float[] plugLoadArray = new float[num];
 float[] usageArray = new float[num];
 float[] productionArray = new float[num];
@@ -61,6 +61,8 @@ void draw() {
   //}
   
   //usage
+  //rect is drawn for each array value; each width is an equal portion of screen area; height is the percentage of area of total screen height
+  // the "-" flip the graph upsidedown so production is on top
   for (int i= 0; i < num; i++) {
     noStroke();
     fill(#296196);
@@ -68,6 +70,9 @@ void draw() {
   }
   
   // plug load
+  //rect is drawn for each array value; each width is an equal portion of screen area
+  //each rect starts at the top of the usage rect drawn at the corresponding array point
+  // the "-" are removed here so that the rects are drawn from the top of the screen  
   for (int i= 0; i < num; i++) {
     noStroke();
     fill(#41948e);
