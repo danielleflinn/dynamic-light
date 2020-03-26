@@ -30,14 +30,23 @@ void setup() {
   for (int i = 0; i < pulls; i++) { //location of data value in csv
       float nums = table.getFloat(i, "Plugload"); //gets the plugload value from csv file
      // println(nums);
+     plugLoadArray[val] = nums;
+
+      val++;
+
       for(int f = 0; f < frac; f++) { //counts the number of times value is assigned to a pixel
-          plugLoadArray[val] = nums;
-         // println(plugLoadArray[f] + " is the " + val + "place in array");
-          val++;
+        
+        if (val != 1024) {
+       plugLoadArray[val] = plugLoadArray[val-1] + (noise((plugLoadArray[val-1]*.0001)));          //uses noise to smooth value between 2 data points
+       println(plugLoadArray[val] + " is the " + val + "place in array");
+       
+        val++;
+        }
       }
-    // println(nums);
+
+    //println(nums);
   }
   
-    println(plugLoadArray[0]);
+   //println(plugLoadArray);
 
 }
