@@ -7,20 +7,20 @@ float[] plugLoadArray = new float[num];
 float[] usageArray = new float[num];
 float[] productionArray = new float[num];
 
- 
-void setup() {
-  size(1024,768);
-  smooth();
-  
-    table = loadTable("data.csv", "header");
-  //println(table.getRowCount() + " total rows in table"); //prints in console total rows in CSV
-  
-  //create an array showing the last 8 hours of data: 1024px / 8hrs = 128px per 1hour
+//create an array showing the last 8 hours of data: 1024px / 8hrs = 128px per 1hour
   //128px / 4 = 32px per 15 mins
   //4x8 = 32 data pulls in 8 hrs
   
   int pulls = 32;     //number of data pulls in all 8 hours
   int frac = 32;     //number of pixels in each section
+ 
+void setup() {
+  size(1024,768);
+  smooth();
+  
+  table = loadTable("data.csv", "header");
+  //println(table.getRowCount() + " total rows in table"); //prints in console total rows in CSV
+  
   int val = 0;       //the exact pixel, or data point in the array
   
   for (int i = 0; i < pulls; i++) {                 //location of data value in csv file
@@ -42,23 +42,6 @@ void setup() {
  
 void draw() {
   background(#fcdc78);
- 
-  //// copy everything one value down
-  //for (int i= num-1; i > 0; i--) {
-  //  arrayOfFloats[i] = arrayOfFloats[i-1];
-  //}
- 
-  //// new incoming value
-  //float newValue = noise(frameCount*0.001)*width;
- 
-  //// set last value to the new value
-  //arrayOfFloats[0] = newValue;
- 
-  //   // usage
-  //for (int i=num-1; i>0; i--) {
-  //  
-    
-  //}
   
   //usage
   //rect is drawn for each array value; each width is an equal portion of screen area; height is the percentage of area of total screen height
@@ -79,6 +62,28 @@ void draw() {
     rect(i, height - usageArray[i]/(productionArray[i]+usageArray[i])*height, width/usageArray.length, plugLoadArray[i]/(productionArray[i]+usageArray[i])*height);
     
   }
+  
+    pulls++;
+ 
+  // copy everything one value down
+  for (int i= num-1; i > 0; i--) {
+    plugLoadArray[i] = plugLoadArray[i-1];
+    usageArray[i] = usageArray[i-1];
+    productionArray[i] = productionArray[i-1];
+  }
+ 
+  // new incoming value
+  //float newValue = noise(frameCount*0.001)*width;
+  float newPlug = table.getFloat(pulls, "Plugload");
+  float newUsage = table.getFloat(pulls, "Usage");
+  float newPro = table.getFloat(pulls, "Production");
+  
+  // set first value to the new value
+  plugLoadArray[0] = newPlug;
+  usageArray[0] = newUsage;
+  productionArray[0] = newPro;
+
+  
 
  // delay(10);
 
