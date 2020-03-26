@@ -15,7 +15,7 @@ void setup() {
     table = loadTable("data.csv", "header");
   //println(table.getRowCount() + " total rows in table"); //prints in console total rows in CSV
   
-  //create an array showing the last 8 hours of data: 1024px / 1hrs = 128px 
+  //create an array showing the last 8 hours of data: 1024px / 8hrs = 128px per 1hour
   //128px / 4 = 32px per 15 mins
   //4x8 = 32 data pulls in 8 hrs
   
