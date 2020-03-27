@@ -16,7 +16,6 @@ float[] productionArray = new float[num];
  
 void setup() {
   size(1024,768);
-  smooth();
   
   table = loadTable("data.csv", "header");
   //println(table.getRowCount() + " total rows in table"); //prints in console total rows in CSV
@@ -24,17 +23,27 @@ void setup() {
   int val = 0;       //the exact pixel, or data point in the array
   
   for (int i = 0; i < pulls; i++) {                 //location of data value in csv file
-      float nums = table.getFloat(i, "Plugload");   //gets the plugload value from csv file
+      float plug = table.getFloat(i, "Plugload");   //gets the plugload value from csv file
       float use = table.getFloat(i, "Usage");       //gets the usage value from csv file
       float pro = table.getFloat(i, "Production");  //gets the production value from csv file
-      
-      for(int f = 0; f < frac; f++) {         //counts the number of times value is assigned to a pixel
-          plugLoadArray[val] = nums;          //assigns value from csv to pixel in array
-          usageArray[val] = use;
-          productionArray[val] = pro;
+        plugLoadArray[val] = plug;          //assigns value from csv to pixel in array
+        usageArray[val] = use;
+        productionArray[val] = pro;
+        
+        val++;
 
-          val++;
+      for(int f = 0; f < frac; f++) {         //counts the number of times value is assigned to a pixel
+         int j = i;
+         if (val != 1024) {
+            plugLoadArray[val] = random(plugLoadArray[val-1], table.getFloat(i++, "Plugload")); 
+            usageArray[val] = random(usageArray[val-1], table.getFloat(i++, "Usage"));
+            productionArray[val] = random(productionArray[val-1], table.getFloat(i++, "Production"));
+            
+            val++;
+         }
+         i = j;
       }
+        
   }
   //println(plugLoadArray[1]);
 
@@ -85,6 +94,6 @@ void draw() {
 
   
 
- // delay(10);
+  delay(10);
 
 }

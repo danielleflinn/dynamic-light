@@ -27,29 +27,28 @@ void setup() {
   int frac = 32;
   int val = 0;
   
-  for (int i = 0; i < pulls; i++) { //location of data value in csv
+  for (int i = 0; i < pulls; i++) {       //location of data value in csv
       float nums = table.getFloat(i, "Plugload"); //gets the plugload value from csv file
      // println(nums);
      plugLoadArray[val] = nums;
      println(plugLoadArray[val] + " is the " + val + "place in array");
 
-      val++;
+     val++;
 
-      for(int f = 0; f < frac; f++) { //counts the number of times value is assigned to a pixel
-        
-        if (val != 1024) {
-      // plugLoadArray[val] = plugLoadArray[val-1] + (noise((plugLoadArray[val-1]*.0001)));          //uses noise to smooth value between 2 data points
-         plugLoadArray[val] = (noise((table.getFloat(i++, "Plugload")/plugLoadArray[val-1])/frac));          //uses noise to smooth value between 2 data points
+      for(int f = 0; f < frac; f++) {      //counts the number of times value is assigned to a pixel
+        int j = i;
+       if (val != 1024) {
+         plugLoadArray[val] = random(plugLoadArray[val-1], table.getFloat(i++, "Plugload"));          //uses noise to smooth value between 2 data points
 
-       println(plugLoadArray[val] + " is the " + val + "place in array");
-       
-        val++;
+         //println(plugLoadArray[val] + " is the " + val + "place in array");
+         
+         val++;
         }
+        i = j;
       }
-
     //println(nums);
   }
   
-   //println(plugLoadArray);
+   println(plugLoadArray);
 
 }
