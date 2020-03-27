@@ -75,25 +75,28 @@ void draw() {
     pulls++;
  
   // copy everything one value down
-  for (int i= num-1; i > 0; i--) {
-    plugLoadArray[i] = plugLoadArray[i-1];
-    usageArray[i] = usageArray[i-1];
-    productionArray[i] = productionArray[i-1];
+  for (int i= num-1; i > 32; i--) {
+    plugLoadArray[i] = plugLoadArray[i-frac];
+    usageArray[i] = usageArray[i-frac];
+    productionArray[i] = productionArray[i-frac];
   }
  
   // new incoming value
-  //float newValue = noise(frameCount*0.001)*width;
   float newPlug = table.getFloat(pulls, "Plugload");
   float newUsage = table.getFloat(pulls, "Usage");
   float newPro = table.getFloat(pulls, "Production");
-  
-  // set first value to the new value
-  plugLoadArray[0] = newPlug;
-  usageArray[0] = newUsage;
-  productionArray[0] = newPro;
 
-  
+  for (int i = 0; i < 32; i++) {
+    // set first value to the new value
+    plugLoadArray[i] = newPlug;
+    usageArray[i] = newUsage;
+    productionArray[i] = newPro;
+    
+    newPlug = random(plugLoadArray[i], plugLoadArray[32]); //random for smoothing
+    newUsage = random(usageArray[i], usageArray[32]);
+    newPro = random(usageArray[i], usageArray[32]);
+  }
 
-  delay(10);
+  delay(500);
 
 }
