@@ -71,13 +71,13 @@ void draw() {
     rect(i, height - usageArray[i]/(productionArray[i]+usageArray[i])*height, width/usageArray.length, plugLoadArray[i]/(productionArray[i]+usageArray[i])*height);
   }
    
-  // copy everything one value down
+  // copy everything one value down; moves the graph
   for (int i= num-1; i > 0; i--) {
     plugLoadArray[i] = plugLoadArray[i-1];
     usageArray[i] = usageArray[i-1];
     productionArray[i] = productionArray[i-1];
   }
-  println(plugLoadArray[0]);
+  //println(plugLoadArray[0]);
   
   //println(pulls);
   pulls++;
@@ -87,20 +87,21 @@ void draw() {
   float newUsage = table.getFloat(pulls, "Usage");
   float newPro = table.getFloat(pulls, "Production");
 
-   //plugLoadArray[0] = newPlug;
-   //usageArray[0] = newUsage;
-   //productionArray[0] = newPro;
+   plugLoadArray[0] = newPlug;
+   usageArray[0] = newUsage;
+   productionArray[0] = newPro;
 
-    for (int i = 0; i <= frac; i++) {
-      // set first value to the new value
-      plugLoadArray[i] = newPlug;
-      usageArray[i] = newUsage;
-      productionArray[i] = newPro;
+   // for (int i = 0; i <= frac; i++) {
       
-      newPlug = random(plugLoadArray[i], plugLoadArray[frac]); //random for smoothing
-      newUsage = random(usageArray[i], usageArray[frac]);
-      newPro = random(usageArray[i], usageArray[frac]);
-    }
+   //     if ( i == frac) {
+   //     plugLoadArray[i] = newPlug;
+   //     usageArray[i] = newUsage;
+   //     productionArray[i] = newPro;
+   // }
+   //   // set first value to the new value 
+   //   plugLoadArray[i] = random(newPlug, plugLoadArray[frac]); //random for smoothing
+   //   usageArray[i] = random(newUsage, usageArray[frac]);
+   //   productionArray[i] = random(newPro, usageArray[frac]);
 
   delay(10);
 
