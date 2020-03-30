@@ -69,34 +69,39 @@ void draw() {
     noStroke();
     fill(#41948e);
     rect(i, height - usageArray[i]/(productionArray[i]+usageArray[i])*height, width/usageArray.length, plugLoadArray[i]/(productionArray[i]+usageArray[i])*height);
-    
   }
-  
-    pulls++;
- 
+   
   // copy everything one value down
-  for (int i= num-1; i > 32; i--) {
-    plugLoadArray[i] = plugLoadArray[i-frac];
-    usageArray[i] = usageArray[i-frac];
-    productionArray[i] = productionArray[i-frac];
+  for (int i= num-1; i > 0; i--) {
+    plugLoadArray[i] = plugLoadArray[i-1];
+    usageArray[i] = usageArray[i-1];
+    productionArray[i] = productionArray[i-1];
   }
- 
+  println(plugLoadArray[0]);
+  
+  //println(pulls);
+  pulls++;
+
   // new incoming value
   float newPlug = table.getFloat(pulls, "Plugload");
   float newUsage = table.getFloat(pulls, "Usage");
   float newPro = table.getFloat(pulls, "Production");
 
-  for (int i = 0; i < 32; i++) {
-    // set first value to the new value
-    plugLoadArray[i] = newPlug;
-    usageArray[i] = newUsage;
-    productionArray[i] = newPro;
-    
-    newPlug = random(plugLoadArray[i], plugLoadArray[32]); //random for smoothing
-    newUsage = random(usageArray[i], usageArray[32]);
-    newPro = random(usageArray[i], usageArray[32]);
-  }
+   //plugLoadArray[0] = newPlug;
+   //usageArray[0] = newUsage;
+   //productionArray[0] = newPro;
 
-  delay(500);
+    for (int i = 0; i <= frac; i++) {
+      // set first value to the new value
+      plugLoadArray[i] = newPlug;
+      usageArray[i] = newUsage;
+      productionArray[i] = newPro;
+      
+      newPlug = random(plugLoadArray[i], plugLoadArray[frac]); //random for smoothing
+      newUsage = random(usageArray[i], usageArray[frac]);
+      newPro = random(usageArray[i], usageArray[frac]);
+    }
+
+  delay(10);
 
 }
