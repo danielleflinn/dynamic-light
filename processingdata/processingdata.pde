@@ -1,5 +1,4 @@
 Table table;
-String string;
 
 int num = 1024; //setting the length of array thus dividing the canvas in columns
 //float[] arrayOfFloats = new float[num]; 
