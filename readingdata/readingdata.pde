@@ -8,47 +8,27 @@ void setup() {
 
   table = loadTable("data.csv", "header");
   //println(table.getRowCount() + " total rows in table");
-
-
-
- //int size = table.getRowCount();
- //   int[] array = new int[size];        
- //   int i = 0;
- //   for (TableRow row : table.rows()) {
- //       int nums = row.getInt("Plugload");
- //      println(nums);
- //       array[i] = nums;
- //       i++;
- //   }
-    //println(array.length + " is the length ");
-   // println(array);
    
   int pulls = 32;
   int frac = 32;
   int val = 0;
   
-  for (int i = 0; i < pulls; i++) {       //location of data value in csv
-      float nums = table.getFloat(i, "Plugload"); //gets the plugload value from csv file
-     // println(nums);
-     plugLoadArray[val] = nums;
-     println(plugLoadArray[val] + " is the " + val + "place in array");
+   for (int i = 0; i < pulls; i++) {
+     float plug = table.getFloat(i, "Plugload");
+     plugLoadArray[val] = plug;
+     val = val + (frac);
+   }
+   
+  // println(plugLoadArray[992]);
+   for (int i = 0; i < num - 1; i++) {
+     float change;
 
-     val++;
-
-      for(int f = 0; f < frac; f++) {      //counts the number of times value is assigned to a pixel
-        int j = i;
-       if (val != 1024) {
-         plugLoadArray[val] = random(plugLoadArray[val-1], table.getFloat(i++, "Plugload"));          //uses noise to smooth value between 2 data points
-
-         //println(plugLoadArray[val] + " is the " + val + "place in array");
-         
-         val++;
-        }
-        i = j;
+     if (plugLoadArray[i] != 0) {
+       float first = plugLoadArray[i];
+       float second = plugLoadArray[i+frac];
+       change = second - first;            //if first value is bigger this is a negative change, if second is bigger there is a positive change 
       }
-    //println(nums);
-  }
-  
-   println(plugLoadArray);
-
+     float inc = change / frac; 
+     plugLoadArray[i+1] = plugLoadArray[i] + inc;
+   }
 }
