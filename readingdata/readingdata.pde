@@ -16,11 +16,11 @@ void setup() {
   float second = 0;
   float inc = 0;
    for (int i = 0; i < pulls; i++) {            //sets the initial data pulls in the array every frac times
-     float plug = table.getFloat(i, "Plugload");
+     float plug = table.getFloat(i, "Production");
      plugLoadArray[val] = plug;
      val = val + (frac);
    }
-   plugLoadArray[num-1] = table.getFloat(frac, "Plugload"); //sets the final value of the array
+   plugLoadArray[num-1] = table.getFloat(frac, "Production"); //sets the final value of the array
    //goes back through array and increments each point every frac number of points
    
    for (int i = 0; i < num - 1; i++) {        //TODO we need to figure out how to keep this loop from overriding the fraction values.
