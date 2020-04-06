@@ -1,7 +1,7 @@
 Table table;
 JSONArray values;
 JSONObject data;
-float[][] currentState = new float [height][width];
+float[][] currentState;
 
 
 //create an array showing the last 8 hours of data: 1024px / 8hrs = 128px per 1hour
@@ -12,10 +12,12 @@ float[][] currentState = new float [height][width];
   //int frac = 32;     //number of pixels in each section
  
 void setup() {
-  size(500,300);
+  size(700,500);
+  //println(height);
   
-  float[][] nextState = new float [height][width];
-  
+  //float[][] nextState = new float [height][width];
+  currentState = new float [width][height];
+
   values = loadJSONArray("data.json");
   
   //JSONObject data = values.getJSONObject(0); 
@@ -45,7 +47,8 @@ void getScreenState(float[][] twoDArray, JSONArray values) { //gets the state fo
       data = values.getJSONObject(i);
       high = getHigh(data);
       low = getLow(data, high);
-      twoDArray[i][j] = getCellState(high, low, j);
+      twoDArray[i][j] = getCellState(high, low, j); 
+      //println("i = " + i + " j = " + j);
     }
   }
 }
@@ -53,7 +56,7 @@ void getScreenState(float[][] twoDArray, JSONArray values) { //gets the state fo
 float getHigh(JSONObject data) { //calculates the ratio between input values and returns the hieght
   float pro = data.getFloat("Production");
   float use = data.getFloat("Usage");
-  float high = use/(use+pro)*height;
+  float high = use/(use+pro)*height; //multiply by height to get number of pixels that should be in usage
   return high;
 }
 
@@ -65,18 +68,25 @@ float getLow(JSONObject data, float high) { //calculates the ratio between input
   return low;
 }
 
+float getChange(float val, float val2) { //gets the change between 2 data values to graph the "smooth"
+  
+  float num = val + val2;
+  return num;
+}
+
 int getCellState(float high, float low, int j) { //takes in the high (top of plug load and usage) and the low (bottom of plug load) and 
                                           //returns the state of a cell; 0, 1, or 2; 0 being yellow, 1 being green, and 2 being blue
-  if (j > high) {
-    return 0;
+  if (j < low) {
+    return 2;
   }
-  else if (j > low) {
+  else if (j < high) {
     return 1;
   }
   else {
-    return 2;
+    return 0;
   }
 }
+
 
 void drawScreen(float[][] twoDArray) {
   for (int i = 0; i < width; i++) {
@@ -88,7 +98,7 @@ void drawScreen(float[][] twoDArray) {
       }
       else if (twoDArray[i][j] == 1) {
         noStroke();
-        fill(#296196);
+        fill(#41948e);
         square(i, j, 1);
       }
       else {
@@ -100,8 +110,7 @@ void drawScreen(float[][] twoDArray) {
   }
 }
 
-float getChange(float val, float val2) { //gets the change between 2 data values to graph the "smooth"
+void printScreen(float[][] twoDArray) { //exports image of the screen to be used in the AR experience; look into writting 2 of these. One for production and one for usage.
   
-  float num = val + val2;
-  return num;
+  
 }
