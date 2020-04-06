@@ -2,40 +2,53 @@ Table table;
 JSONArray values;
 JSONObject data;
 float[][] currentState;
+//float[][] nextState; //the second array to be compared with the first
 
+PGraphics export;
 
-//create an array showing the last 8 hours of data: 1024px / 8hrs = 128px per 1hour
-  //128px / 4 = 32px per 15 mins
-  //4x8 = 32 data pulls in 8 hrs
-  
-  //int pulls = 32;     //number of data pulls in all 8 hours
-  //int frac = 32;     //number of pixels in each section
+int pulls;
+int frac;
  
 void setup() {
-  size(700,500);
+  size(1024,768);
   //println(height);
   
-  //float[][] nextState = new float [height][width];
+    
+  //create an array showing the last 8 hours of data: 1024px / 8hrs = 128px per 1hour
+  //128px / 4 = 32px per 15 mins
+  //4x8 = 32 data pulls in 8 hrs
+    
+   pulls = 32;             //number of data pulls to display, no more than 1024; recommended to be at least 32
+   frac = width/pulls;     //number of pixels in each section
+  
   currentState = new float [width][height];
+  //nextState = new float[width][height];
 
   values = loadJSONArray("data.json");
   
-  //JSONObject data = values.getJSONObject(0); 
   
-  //float pro = data.getFloat("Production");
-  //float use = data.getFloat("Usage");
-  //float plug = data.getFloat("Plugload");
-
-  //println(pro + " of Pro, " + use + " of Use, " + plug + " of Plug");
   
 }
  
 void draw() {
+  scale(1, -1);
+  translate(0, -height);      //make the bottom left corner the orgin
   background(#fcdc78);
   
   getScreenState(currentState, values);
   
-  drawScreen(currentState);
+  drawScreen(currentState)
+  
+  //printProduction(currentState);
+  //printUsage(currentState);
+  
+  //delay(10); //delay in seconds between each data pull; 900 if pulling every 15 minutes
+  
+  //need to smooth the view
+  //need to define the nextState 2D array
+  //need to compare with currentState;
+  //need to 
+  
 }
 
 void getScreenState(float[][] twoDArray, JSONArray values) { //gets the state for each cell in the 2D array to store current state
@@ -43,11 +56,11 @@ void getScreenState(float[][] twoDArray, JSONArray values) { //gets the state fo
   float high;
   float low;
   for (int i = 0; i < width; i++) {
-    for (int j = 0; j < height; j++){
+    for (int j = 0; j < height; j++){ //this will likely be j 
       data = values.getJSONObject(i);
       high = getHigh(data);
       low = getLow(data, high);
-      twoDArray[i][j] = getCellState(high, low, j); 
+      twoDArray[i][j] = getCellState(high, low, j); //need to call the smooth function here while j is not divisable by frac
       //println("i = " + i + " j = " + j);
     }
   }
@@ -87,7 +100,6 @@ int getCellState(float high, float low, int j) { //takes in the high (top of plu
   }
 }
 
-
 void drawScreen(float[][] twoDArray) {
   for (int i = 0; i < width; i++) {
     for (int j = 0; j < height; j++){
@@ -110,7 +122,59 @@ void drawScreen(float[][] twoDArray) {
   }
 }
 
-void printScreen(float[][] twoDArray) { //exports image of the screen to be used in the AR experience; look into writting 2 of these. One for production and one for usage.
-  
-  
+void printProduction(float[][] twoDArray) { //exports image of the screen to be used in the AR experience;  2 one for usage and one for production
+  export = createGraphics(width, height);  // Create a new PGraphics object
+  export.beginDraw();                   // Start drawing to the PGraphics object 
+ 
+  for (int i = 0; i < width; i++) {
+    for (int j = 0; j < height; j++){
+      if (twoDArray[i][j] == 2) {
+        export.noStroke();
+        export.fill(#A9A9A9);
+        export.square(i, j, 1);
+      }
+      else if (twoDArray[i][j] == 1) {
+        export.noStroke();
+        export.fill(#D3D3D3);
+        export.square(i, j, 1);
+      }
+      else {
+        export.noStroke();
+        export.fill(#fcdc78);
+        export.square(i, j, 1);
+      }
+    }
+  }
+  export.endDraw();                     // Stop drawing to the PGraphics object 
+  export.save("production.jpg");
 }
+
+void printUsage(float[][] twoDArray) {     //exports image of the screen to be used in the AR experience;  2 one for usage and one for production
+  export = createGraphics(width, height);  // Create a new PGraphics object
+  export.beginDraw();                       // Start drawing to the PGraphics object 
+ 
+  for (int i = 0; i < width; i++) {
+    for (int j = 0; j < height; j++){
+      if (twoDArray[i][j] == 2) {
+        export.noStroke();
+        export.fill(#296196);
+        export.square(i, j, 1);
+      }
+      else if (twoDArray[i][j] == 1) {
+        export.noStroke();
+        export.fill(#41948e);
+        export.square(i, j, 1);
+      }
+      else {
+        export.noStroke();
+        export.fill(#D3D3D3);
+        export.square(i, j, 1);
+      }
+    }
+  }
+  export.endDraw();                     // Stop drawing to the PGraphics object 
+  export.save("usage.jpg");
+}
+
+
+  
