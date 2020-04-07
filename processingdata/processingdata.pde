@@ -27,7 +27,7 @@ void setup() {
 
 
   values = loadJSONArray("data.json");
-  getSmooth(storeSmooth, values.getJSONObject(0), values.getJSONObject(1));
+  getSmooth(storeSmooth, values.getJSONObject(0), values.getJSONObject(1));  //grabs the 2 most recent JSONObjects
 }
  
 void draw() {
@@ -45,7 +45,7 @@ void draw() {
   
   //delay(10); //delay in seconds between each data pull; 900 if pulling every 15 minutes
   
-  //need to smooth the view
+  //need to add the smooth function to the nextState Array, 1 column at a time
   //need to make it move
   
 }
@@ -80,19 +80,19 @@ float getLow(JSONObject data, float high) { //calculates the ratio between input
   return low;
 }
 
-void getSmooth(float[][] twoDArray, JSONObject data, JSONObject data2) {
+void getSmooth(float[][] twoDArray, JSONObject data, JSONObject data2) {   //calculates the high and low points for the pixels between the actual data points 
   float high = getHigh(data);
   float low = getLow(data, high);
   
   for (int i = 0; i < height; i++) {
-     twoDArray[0][i] = getCellState(high, low, i);  //set the states of the first column in the array
+     twoDArray[0][i] = getCellState(high, low, i);  //set the states of the first column in the 2d array
   }
   
   float high2 = getHigh(data2);
   float low2 = getLow(data, high);
   
   for (int i = 0; i < height; i++) {
-    twoDArray[width/pulls-1][i] = getCellState(high2, low2, i);  //set the states of the last column in the array
+    twoDArray[width/pulls-1][i] = getCellState(high2, low2, i);  //set the states of the last column in the 2d array
   }  
 
   float highChange = getChange(high, high2) / frac;
@@ -124,7 +124,7 @@ int getCellState(float high, float low, int j) { //takes in the high (top of plu
   }
 }
 
-void drawScreen(float[][] nextState, float[][] currentState) {
+void drawScreen(float[][] nextState, float[][] currentState) {      //draws the screen state
   for (int i = 0; i < width; i++) {
     for (int j = 0; j < height; j++){
       
