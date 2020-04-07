@@ -3,14 +3,14 @@ JSONArray values;
 JSONObject data;
 float[][] currentState;
 float[][] nextState; //the second array to be compared with the first
-
+float[][] storeSmooth;
 PGraphics export;
 
 int pulls;
 int frac;
  
 void setup() {
-  size(1024,768);
+  size(224,100);
   //println(height);
   
     
@@ -18,16 +18,16 @@ void setup() {
   //128px / 4 = 32px per 15 mins
   //4x8 = 32 data pulls in 8 hrs
     
-   pulls = 32;             //number of data pulls to display, no more than 1024; recommended to be at least 32
+   pulls = 32;             //number of data pulls to display; whould be divisable by width and no more than width; recommended to be at least 32 for a 1024 pixel screen
    frac = width/pulls;     //number of pixels in each section
   
   currentState = new float [width][height];
   nextState = new float[width][height];
+  storeSmooth = new float[width/pulls][height];
+
 
   values = loadJSONArray("data.json");
-  
-  
-  
+  getSmooth(storeSmooth, values.getJSONObject(0), values.getJSONObject(1));
 }
  
 void draw() {
@@ -35,19 +35,18 @@ void draw() {
   translate(0, -height);      //make the bottom left corner the orgin
   background(#fcdc78);
   
-  getScreenState(nextState, values);
+  //getScreenState(nextState, values);
   
-  drawScreen(nextState, currentState);
+  //drawScreen(nextState, currentState);
   
-  //printProduction(currentState);
-  //printUsage(currentState);
+
+  //printProduction(currentState);  //exports image for AR
+  //printUsage(currentState);      //exports image for AR
   
   //delay(10); //delay in seconds between each data pull; 900 if pulling every 15 minutes
   
   //need to smooth the view
-  //need to define the nextState 2D array
-  //need to compare with currentState;
-  //need to 
+  //need to make it move
   
 }
 
@@ -56,7 +55,7 @@ void getScreenState(float[][] twoDArray, JSONArray values) { //gets the state fo
   float high;
   float low;
   for (int i = 0; i < width; i++) {
-    for (int j = 0; j < height; j++){ //this will likely be j 
+    for (int j = 0; j < height; j++){ //this will likely be j + pulls
       data = values.getJSONObject(i);
       high = getHigh(data);
       low = getLow(data, high);
@@ -81,10 +80,35 @@ float getLow(JSONObject data, float high) { //calculates the ratio between input
   return low;
 }
 
-float getChange(float val, float val2) { //gets the change between 2 data values to graph the "smooth"
+void getSmooth(float[][] twoDArray, JSONObject data, JSONObject data2) {
+  float high = getHigh(data);
+  float low = getLow(data, high);
   
-  float num = val + val2;
-  return num;
+  for (int i = 0; i < height; i++) {
+     twoDArray[0][i] = getCellState(high, low, i);  //set the states of the first column in the array
+  }
+  
+  float high2 = getHigh(data2);
+  float low2 = getLow(data, high);
+  
+  for (int i = 0; i < height; i++) {
+    twoDArray[width/pulls-1][i] = getCellState(high2, low2, i);  //set the states of the last column in the array
+  }  
+
+  float highChange = getChange(high, high2) / frac;
+  float lowChange = getChange(low, low2) / frac;
+
+  for (int i = 1; i < width/pulls-1; i++) {
+     for(int j = 1; j < height; j++) {
+       high = high + highChange;
+       low = low +lowChange;
+       twoDArray[i][j] = getCellState(high, low, i);
+     }
+  } 
+}
+
+float getChange(float val, float val2) { //gets the change between 2 data values to graph the "smooth"
+  return val2 - val;
 }
 
 int getCellState(float high, float low, int j) { //takes in the high (top of plug load and usage) and the low (bottom of plug load) and 
@@ -120,6 +144,7 @@ void drawScreen(float[][] nextState, float[][] currentState) {
           fill(#fcdc78);
           square(i, j, 1);
         }
+        //currentState[i][j] = nextState[i][j]; //set currentState to nextState
       }
     }
   }
@@ -148,8 +173,8 @@ void printProduction(float[][] twoDArray) { //exports image of the screen to be 
       }
     }
   }
-  export.endDraw();                     // Stop drawing to the PGraphics object 
-  export.save("production.jpg");
+  export.endDraw();                     
+  export.save("production.jpg");       //change this String to a path to save to a folder other than where the Sketch is 
 }
 
 void printUsage(float[][] twoDArray) {     //exports image of the screen to be used in the AR experience;  2 one for usage and one for production
@@ -175,8 +200,8 @@ void printUsage(float[][] twoDArray) {     //exports image of the screen to be u
       }
     }
   }
-  export.endDraw();                     // Stop drawing to the PGraphics object 
-  export.save("usage.jpg");
+  export.endDraw();                     
+  export.save("usage.jpg");             //change this String to a path to save to a folder other than where the Sketch is 
 }
 
 
