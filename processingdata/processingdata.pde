@@ -2,7 +2,7 @@ Table table;
 JSONArray values;
 JSONObject data;
 float[][] currentState;
-//float[][] nextState; //the second array to be compared with the first
+float[][] nextState; //the second array to be compared with the first
 
 PGraphics export;
 
@@ -22,7 +22,7 @@ void setup() {
    frac = width/pulls;     //number of pixels in each section
   
   currentState = new float [width][height];
-  //nextState = new float[width][height];
+  nextState = new float[width][height];
 
   values = loadJSONArray("data.json");
   
@@ -35,9 +35,9 @@ void draw() {
   translate(0, -height);      //make the bottom left corner the orgin
   background(#fcdc78);
   
-  getScreenState(currentState, values);
+  getScreenState(nextState, values);
   
-  drawScreen(currentState)
+  drawScreen(nextState, currentState);
   
   //printProduction(currentState);
   //printUsage(currentState);
@@ -100,23 +100,26 @@ int getCellState(float high, float low, int j) { //takes in the high (top of plu
   }
 }
 
-void drawScreen(float[][] twoDArray) {
+void drawScreen(float[][] nextState, float[][] currentState) {
   for (int i = 0; i < width; i++) {
     for (int j = 0; j < height; j++){
-      if (twoDArray[i][j] == 2) {
-        noStroke();
-        fill(#296196);
-        square(i, j, 1);
-      }
-      else if (twoDArray[i][j] == 1) {
-        noStroke();
-        fill(#41948e);
-        square(i, j, 1);
-      }
-      else {
-        noStroke();
-        fill(#fcdc78);
-        square(i, j, 1);
+      
+      if (nextState[i][j] != currentState[i][j]) {
+        if (nextState[i][j] == 2) {
+          noStroke();
+          fill(#296196);
+          square(i, j, 1);
+        }
+        else if (nextState[i][j] == 1) {
+          noStroke();
+          fill(#41948e);
+          square(i, j, 1);
+        }
+        else {
+          noStroke();
+          fill(#fcdc78);
+          square(i, j, 1);
+        }
       }
     }
   }
