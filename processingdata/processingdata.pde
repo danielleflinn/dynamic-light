@@ -1,10 +1,11 @@
 Table table;
 JSONArray values;
 JSONObject data;
+PGraphics export;
+
 float[][] currentState;
 float[][] nextState; //the second array to be compared with the first
 float[][] storeSmooth;
-PGraphics export;
 
 int pulls;
 int frac;
@@ -18,8 +19,8 @@ void setup() {
   //128px / 4 = 32px per 15 mins
   //4x8 = 32 data pulls in 8 hrs
     
-   pulls = 32;             //number of data pulls to display; whould be divisable by width and no more than width; recommended to be at least 32 for a 1024 pixel screen
-   frac = width/pulls;     //number of pixels in each section
+  pulls = 32;             //number of data pulls to display; whould be divisable by width and no more than width; recommended to be at least 32 for a 1024 pixel screen
+  frac = width/pulls;     //number of pixels in each section
   
   currentState = new float [width][height];
   nextState = new float[width][height];
@@ -27,7 +28,6 @@ void setup() {
 
 
   values = loadJSONArray("data.json");
-  getSmooth(storeSmooth, values.getJSONObject(0), values.getJSONObject(1));  //grabs the 2 most recent JSONObjects
 }
  
 void draw() {
@@ -35,6 +35,8 @@ void draw() {
   translate(0, -height);      //make the bottom left corner the orgin
   background(#fcdc78);
   
+  getSmooth(nextState, values.getJSONObject(pulls-1), values.getJSONObject(pulls), 0);  //grabs the 2 most recent JSONObjects
+
   //getScreenState(nextState, values);
   
   //drawScreen(nextState, currentState);
@@ -47,7 +49,7 @@ void draw() {
   
   //need to add the smooth function to the nextState Array, 1 column at a time
   //need to make it move
-  
+  println(nextState[6][50]);
 }
 
 void getScreenState(float[][] twoDArray, JSONArray values) { //gets the state for each cell in the 2D array to store current state
@@ -80,28 +82,28 @@ float getLow(JSONObject data, float high) { //calculates the ratio between input
   return low;
 }
 
-void getSmooth(float[][] twoDArray, JSONObject data, JSONObject data2) {   //calculates the high and low points for the pixels between the actual data points 
+void getSmooth(float[][] twoDArray, JSONObject data, JSONObject data2, int start) {   //calculates the high and low points for the pixels between the actual data points 
   float high = getHigh(data);
   float low = getLow(data, high);
   
-  for (int i = 0; i < height; i++) {
+  for (int i = start; i < height; i++) {
      twoDArray[0][i] = getCellState(high, low, i);  //set the states of the first column in the 2d array
   }
   
   float high2 = getHigh(data2);
   float low2 = getLow(data, high);
   
-  for (int i = 0; i < height; i++) {
-    twoDArray[width/pulls-1][i] = getCellState(high2, low2, i);  //set the states of the last column in the 2d array
-  }  
+  //for (int i = 0; i < height; i++) {
+  //  twoDArray[frac-1][i] = getCellState(high2, low2, i);  //set the states of the last column in the 2d array
+  //}  
 
   float highChange = getChange(high, high2) / frac;
   float lowChange = getChange(low, low2) / frac;
 
-  for (int i = 1; i < width/pulls-1; i++) {
+  for (int i = start + 1; i < start + frac; i++) {
      for(int j = 1; j < height; j++) {
        high = high + highChange;
-       low = low +lowChange;
+       low = low + lowChange;
        twoDArray[i][j] = getCellState(high, low, i);
      }
   } 
