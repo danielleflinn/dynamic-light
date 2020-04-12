@@ -9,9 +9,11 @@ float[][] storeSmooth;
 
 int pulls;
 int frac;
+
+int start;
  
 void setup() {
-  size(224,100);
+  size(1024,768);
   //println(height);
   
     
@@ -28,6 +30,7 @@ void setup() {
 
 
   values = loadJSONArray("data.json");
+
 }
  
 void draw() {
@@ -35,42 +38,35 @@ void draw() {
   translate(0, -height);      //make the bottom left corner the orgin
   background(#fcdc78);
   
-  getSmooth(nextState, values.getJSONObject(pulls-1), values.getJSONObject(pulls), 0);  //grabs the 2 most recent JSONObjects
-
-  //getScreenState(nextState, values);
+  //getSmooth(nextState, values.getJSONObject(pulls-1), values.getJSONObject(pulls), 0);  //grabs the 2 most recent JSONObjects
+  getScreenState(nextState, values);
   
-  //drawScreen(nextState, currentState);
-  
+  drawScreen(nextState, currentState);
 
   //printProduction(currentState);  //exports image for AR
   //printUsage(currentState);      //exports image for AR
   
-  //delay(10); //delay in seconds between each data pull; 900 if pulling every 15 minutes
+  delay(10); //delay in seconds between each data pull; 900 if pulling every 15 minutes
   
   //need to add the smooth function to the nextState Array, 1 column at a time
   //need to make it move
-  println(nextState[6][50]);
 }
 
 void getScreenState(float[][] twoDArray, JSONArray values) { //gets the state for each cell in the 2D array to store current state
   JSONObject data; 
-  float high;
-  float low;
-  for (int i = 0; i < width; i++) {
-    for (int j = 0; j < height; j++){ //this will likely be j + pulls
+  JSONObject data2; 
+
+  for (int i = 0; i < pulls; i++) {  //calls data number of pull times
       data = values.getJSONObject(i);
-      high = getHigh(data);
-      low = getLow(data, high);
-      twoDArray[i][j] = getCellState(high, low, j); //need to call the smooth function here while j is not divisable by frac
-      //println("i = " + i + " j = " + j);
-    }
+      data2 = values.getJSONObject(i+1);
+      getSmooth(twoDArray, data, data2, i*frac); //get smooth calculates the columns in each frac, starts with i*frac
   }
 }
 
 float getHigh(JSONObject data) { //calculates the ratio between input values and returns the hieght
   float pro = data.getFloat("Production");
   float use = data.getFloat("Usage");
-  float high = use/(use+pro)*height; //multiply by height to get number of pixels that should be in usage
+  float high = (use/(use+pro))*height; //multiply by height to get number of pixels that should be in usage
   return high;
 }
 
@@ -78,7 +74,7 @@ float getLow(JSONObject data, float high) { //calculates the ratio between input
   float pro = data.getFloat("Production");
   float use = data.getFloat("Usage");
   float plug = data.getFloat("Plugload");
-  float low = high - (plug/(use+pro)*height); //take the height from usage and subtract plug load height so that plug load starts at the top of usage
+  float low = (high - (plug/(use+pro))*height); //take the height from usage and subtract plug load height so that plug load starts at the top of usage
   return low;
 }
 
@@ -86,8 +82,8 @@ void getSmooth(float[][] twoDArray, JSONObject data, JSONObject data2, int start
   float high = getHigh(data);
   float low = getLow(data, high);
   
-  for (int i = start; i < height; i++) {
-     twoDArray[0][i] = getCellState(high, low, i);  //set the states of the first column in the 2d array
+  for (int i = 0; i < height; i++) {
+     twoDArray[start][i] = getCellState(high, low, i);  //set the states of the first column in the 2d array
   }
   
   float high2 = getHigh(data2);
@@ -97,14 +93,15 @@ void getSmooth(float[][] twoDArray, JSONObject data, JSONObject data2, int start
   //  twoDArray[frac-1][i] = getCellState(high2, low2, i);  //set the states of the last column in the 2d array
   //}  
 
-  float highChange = getChange(high, high2) / frac;
-  float lowChange = getChange(low, low2) / frac;
+  float highChange = (getChange(high, high2)) / frac;
+  float lowChange = (getChange(low, low2)) / frac;
 
-  for (int i = start + 1; i < start + frac; i++) {
-     for(int j = 1; j < height; j++) {
+  for (int i = start + 1; i < start + frac; i++) {  //indicates column
+     for(int j = 0; j < height; j++) {  //indicates row
        high = high + highChange;
+       //println(high);  //prints into the thousand; why?
        low = low + lowChange;
-       twoDArray[i][j] = getCellState(high, low, i);
+       twoDArray[i][j] = getCellState(high, low, j);
      }
   } 
 }
