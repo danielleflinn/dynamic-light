@@ -9,12 +9,12 @@ float[][] storeSmooth;
 
 int pulls;
 int frac;
+int count;
 
-int start;
- 
 void setup() {
-  size(1024,768);
-  //println(height);
+  fullScreen();
+
+  //size(1024,768);
   
     
   //create an array showing the last 8 hours of data: 1024px / 8hrs = 128px per 1hour
@@ -26,12 +26,16 @@ void setup() {
   
   currentState = new float [width][height];
   nextState = new float[width][height];
-  storeSmooth = new float[width/pulls][height];
+  storeSmooth = new float[frac][height];
 
 
   values = loadJSONArray("data.json");
+  
   getScreenState(nextState, values);
-
+  
+  getSmooth(storeSmooth, values.getJSONObject(pulls-1), values.getJSONObject(pulls), 0);  //grabs the 2 most recent JSONObjects
+  
+  count = 0;
 }
  
 void draw() {
@@ -39,46 +43,36 @@ void draw() {
   translate(0, -height);      //make the bottom left corner the orgin
   background(#fcdc78);
   
-  //testSmooth(nextState, 0);
   drawScreen(nextState, currentState);
-
-  getSmooth(nextState, values.getJSONObject(pulls-1), values.getJSONObject(pulls), 0);  //grabs the 2 most recent JSONObjects
-
+  
   //printProduction(currentState);  //exports image for AR
   //printUsage(currentState);      //exports image for AR
   
-  delay(10); //delay in seconds between each data pull; 900 if pulling every 15 minutes
+  getNextState(nextState, storeSmooth, count);
+  count++;
+  
+  if ( count == frac) {
+    count = 0;
+  }
+  //delay(10); //delay in seconds between each data pull; 900 if pulling every 15 minutes
+  
   
   //need to add the smooth function to the nextState Array, 1 column at a time
   //need to make it move
+  //decide how often the print image functions should run. 
+  //Currently they will export each time the 2d array is drawn, which is about every 30 seconds. 
+  //Is this too much for the program?
 }
 
-void testSmooth(float[][] twoDArray, int start) {   //calculates the high and low points for the pixels between the actual data points 
-  float high = 1024;
-  float low = 150;
-  
-  for (int i = 0; i < height; i++) {
-     twoDArray[start][i] = getCellState(high, low, i);  //set the states of the first column in the 2d array
-  }
-  
-  float high2 = 300;
-  float low2 = 175;
-  
-  //for (int i = 0; i < height; i++) {
-  //  twoDArray[frac-1][i] = getCellState(high2, low2, i);  //set the states of the last column in the 2d array
-  //}  
-
-  float highChange = (getChange(high, high2)) / frac;
-  float lowChange = (getChange(low, low2)) / frac;
-
-  for (int i = start + 1; i < start + frac; i++) {  //indicates column
+void getNextState(float[][] twoDArray, float[][] storeSmooth, int count){  //a basic push 2d array function; need to fix
+  for (int i = 1; i < width; i++) {  //indicates column
      for(int j = 0; j < height; j++) {  //indicates row
-       //println(high);  //prints into the thousand; why?
-       twoDArray[i][j] = getCellState(high, low, j);
+       twoDArray[i][j] = twoDArray[i-1][j];
      }
-     high = high + highChange;
-     low = low + lowChange;
-  } 
+  }
+  for(int j = 0; j < height; j++) {  //indicates row
+       twoDArray[0][j] = storeSmooth[count][j];
+     }
 }
 
 void getScreenState(float[][] twoDArray, JSONArray values) { //gets the state for each cell in the 2D array to store current state
