@@ -30,6 +30,7 @@ void setup() {
 
 
   values = loadJSONArray("data.json");
+  getScreenState(nextState, values);
 
 }
  
@@ -38,10 +39,10 @@ void draw() {
   translate(0, -height);      //make the bottom left corner the orgin
   background(#fcdc78);
   
-  //getSmooth(nextState, values.getJSONObject(pulls-1), values.getJSONObject(pulls), 0);  //grabs the 2 most recent JSONObjects
-  getScreenState(nextState, values);
-  
+  //testSmooth(nextState, 0);
   drawScreen(nextState, currentState);
+
+  getSmooth(nextState, values.getJSONObject(pulls-1), values.getJSONObject(pulls), 0);  //grabs the 2 most recent JSONObjects
 
   //printProduction(currentState);  //exports image for AR
   //printUsage(currentState);      //exports image for AR
@@ -50,6 +51,34 @@ void draw() {
   
   //need to add the smooth function to the nextState Array, 1 column at a time
   //need to make it move
+}
+
+void testSmooth(float[][] twoDArray, int start) {   //calculates the high and low points for the pixels between the actual data points 
+  float high = 1024;
+  float low = 150;
+  
+  for (int i = 0; i < height; i++) {
+     twoDArray[start][i] = getCellState(high, low, i);  //set the states of the first column in the 2d array
+  }
+  
+  float high2 = 300;
+  float low2 = 175;
+  
+  //for (int i = 0; i < height; i++) {
+  //  twoDArray[frac-1][i] = getCellState(high2, low2, i);  //set the states of the last column in the 2d array
+  //}  
+
+  float highChange = (getChange(high, high2)) / frac;
+  float lowChange = (getChange(low, low2)) / frac;
+
+  for (int i = start + 1; i < start + frac; i++) {  //indicates column
+     for(int j = 0; j < height; j++) {  //indicates row
+       //println(high);  //prints into the thousand; why?
+       twoDArray[i][j] = getCellState(high, low, j);
+     }
+     high = high + highChange;
+     low = low + lowChange;
+  } 
 }
 
 void getScreenState(float[][] twoDArray, JSONArray values) { //gets the state for each cell in the 2D array to store current state
@@ -63,21 +92,6 @@ void getScreenState(float[][] twoDArray, JSONArray values) { //gets the state fo
   }
 }
 
-float getHigh(JSONObject data) { //calculates the ratio between input values and returns the hieght
-  float pro = data.getFloat("Production");
-  float use = data.getFloat("Usage");
-  float high = (use/(use+pro))*height; //multiply by height to get number of pixels that should be in usage
-  return high;
-}
-
-float getLow(JSONObject data, float high) { //calculates the ratio between input values and returns the hieght
-  float pro = data.getFloat("Production");
-  float use = data.getFloat("Usage");
-  float plug = data.getFloat("Plugload");
-  float low = (high - (plug/(use+pro))*height); //take the height from usage and subtract plug load height so that plug load starts at the top of usage
-  return low;
-}
-
 void getSmooth(float[][] twoDArray, JSONObject data, JSONObject data2, int start) {   //calculates the high and low points for the pixels between the actual data points 
   float high = getHigh(data);
   float low = getLow(data, high);
@@ -87,7 +101,7 @@ void getSmooth(float[][] twoDArray, JSONObject data, JSONObject data2, int start
   }
   
   float high2 = getHigh(data2);
-  float low2 = getLow(data, high);
+  float low2 = getLow(data2, high2);
   
   //for (int i = 0; i < height; i++) {
   //  twoDArray[frac-1][i] = getCellState(high2, low2, i);  //set the states of the last column in the 2d array
@@ -98,12 +112,24 @@ void getSmooth(float[][] twoDArray, JSONObject data, JSONObject data2, int start
 
   for (int i = start + 1; i < start + frac; i++) {  //indicates column
      for(int j = 0; j < height; j++) {  //indicates row
-       high = high + highChange;
-       //println(high);  //prints into the thousand; why?
-       low = low + lowChange;
        twoDArray[i][j] = getCellState(high, low, j);
      }
+      high = high + highChange;
+      low = low + lowChange;
   } 
+}
+
+float getHigh(JSONObject data) { //calculates the ratio between input values and returns the hieght
+  float pro = data.getFloat("Production");
+  float use = data.getFloat("Usage");
+  return (use/(use+pro))*height; //multiply by height to get number of pixels that should be in usage
+}
+
+float getLow(JSONObject data, float high) { //calculates the ratio between input values and returns the hieght
+  float pro = data.getFloat("Production");
+  float use = data.getFloat("Usage");
+  float plug = data.getFloat("Plugload");
+  return (high - (plug/(use+pro))*height); //take the height from usage and subtract plug load height so that plug load starts at the top of usage
 }
 
 float getChange(float val, float val2) { //gets the change between 2 data values to graph the "smooth"
@@ -130,17 +156,17 @@ void drawScreen(float[][] nextState, float[][] currentState) {      //draws the 
       if (nextState[i][j] != currentState[i][j]) {
         if (nextState[i][j] == 2) {
           noStroke();
-          fill(#296196);
+          fill(#296196);    //blue
           square(i, j, 1);
         }
         else if (nextState[i][j] == 1) {
           noStroke();
-          fill(#41948e);
+          fill(#41948e);    //green
           square(i, j, 1);
         }
         else {
           noStroke();
-          fill(#fcdc78);
+          fill(#fcdc78);    //yellow
           square(i, j, 1);
         }
         //currentState[i][j] = nextState[i][j]; //set currentState to nextState
