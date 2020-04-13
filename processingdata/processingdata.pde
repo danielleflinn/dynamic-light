@@ -9,7 +9,9 @@ float[][] storeSmooth;
 
 int pulls;
 int frac;
-int count;
+
+int count;         //track number of times smooth function is run 
+int numPulls;     //To be deleted; but will count number of pulls from the static json file so that we pull in a new data point each time
 
 void setup() {
   fullScreen();
@@ -33,9 +35,10 @@ void setup() {
   
   getScreenState(nextState, values);
   
-  getSmooth(storeSmooth, values.getJSONObject(pulls-1), values.getJSONObject(pulls), 0);  //grabs the 2 most recent JSONObjects
+  count = 1;
+  numPulls = pulls;  //getScreenState gets initial screen state, which calls json file number of pulls times
   
-  count = 0;
+  getSmooth(storeSmooth, values.getJSONObject(numPulls-1), values.getJSONObject(numPulls), 0);  //grabs the 2 most recent JSONObjects
 }
  
 void draw() {
@@ -48,6 +51,11 @@ void draw() {
   //printProduction(currentState);  //exports image for AR
   //printUsage(currentState);      //exports image for AR
   
+  if (count == 0) {
+    numPulls++;
+    getSmooth(storeSmooth, values.getJSONObject(numPulls-1), values.getJSONObject(numPulls), 0);
+  }
+  
   getNextState(nextState, storeSmooth, count);
   count++;
   
@@ -57,8 +65,7 @@ void draw() {
   //delay(900); //delay in seconds between each data pull; 900 if pulling every 15 minutes
   
   
-  //need to add the smooth function to the nextState Array, 1 column at a time
-  //need to make it move
+  //need to confirm the initial data flow is correct; 0,0 should not be 0,0 of the json file
   //decide how often the print image functions should run. 
   //Currently they will export each time the 2d array is drawn, which is about every 30 seconds. 
   //Is this too much for the program?
@@ -96,15 +103,12 @@ void getSmooth(float[][] twoDArray, JSONObject data, JSONObject data2, int start
   
   float high2 = getHigh(data2);
   float low2 = getLow(data2, high2);
-  
-  //for (int i = 0; i < height; i++) {
-  //  twoDArray[frac-1][i] = getCellState(high2, low2, i);  //set the states of the last column in the 2d array
-  //}  
+ 
 
   float highChange = (getChange(high, high2)) / frac;
   float lowChange = (getChange(low, low2)) / frac;
 
-  for (int i = start + 1; i < start + frac; i++) {  //indicates column
+  for (int i = start + 1; i < start + frac; i++) {    //sets the states for the remainder of the columns between each data
      for(int j = 0; j < height; j++) {  //indicates row
        twoDArray[i][j] = getCellState(high, low, j);
      }
