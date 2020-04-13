@@ -54,7 +54,7 @@ void draw() {
   if ( count == frac) {
     count = 0;
   }
-  //delay(10); //delay in seconds between each data pull; 900 if pulling every 15 minutes
+  //delay(900); //delay in seconds between each data pull; 900 if pulling every 15 minutes
   
   
   //need to add the smooth function to the nextState Array, 1 column at a time
@@ -65,7 +65,7 @@ void draw() {
 }
 
 void getNextState(float[][] twoDArray, float[][] storeSmooth, int count){  //a basic push 2d array function; need to fix
-  for (int i = 1; i < width; i++) {  //indicates column
+  for (int i = twoDArray.length -1; i > 0; i--) {  //indicates column
      for(int j = 0; j < height; j++) {  //indicates row
        twoDArray[i][j] = twoDArray[i-1][j];
      }
