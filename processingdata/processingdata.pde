@@ -31,12 +31,13 @@ void setup() {
 
   values = loadJSONArray("data.json");
   
-  getScreenState(nextState, values);
+  getScreenState(nextState, values); //getScreenState gets initial screen state, which calls json file number of pulls times;
   
   count = 1;
-  numPulls = pulls;  //getScreenState gets initial screen state, which calls json file number of pulls times
+  numPulls = pulls;   //set to pulls while testing with static JSON file; change this to secind to last Json object in file, thus bulling in the 2 most recent and new objects
   
-  getSmooth(storeSmooth, values.getJSONObject(numPulls-1), values.getJSONObject(numPulls), 0);  //grabs the 2 most recent JSONObjects
+  getSmooth(storeSmooth, values.getJSONObject(numPulls), values.getJSONObject(numPulls+1), 0);  //grabs the 2 most recent JSONObjects
+  
 }
  
 void draw() {
@@ -46,12 +47,12 @@ void draw() {
   
   drawScreen(nextState, currentState);
   
-  //printProduction(nextState);  //exports image for AR
+  //printProduction(nextState);  //exports image for AR, move both into one of the if statements so the program only exports everytime new data is called from the Json.
   //printUsage(nextState);      //exports image for AR
   
   if (count == 0) {
-    numPulls++;
-    getSmooth(storeSmooth, values.getJSONObject(numPulls-1), values.getJSONObject(numPulls), 0);
+    numPulls++;    //in final, this line to be deleted and numPulls will be a constant variable always pulling in the last 2 object / most recent objects in the json file
+    getSmooth(storeSmooth, values.getJSONObject(numPulls), values.getJSONObject(numPulls+1), 0);
   }
   
   getNextState(nextState, storeSmooth, count);
