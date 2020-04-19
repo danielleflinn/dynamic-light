@@ -14,16 +14,16 @@ int count;         //track number of times smooth function is run
 int numPulls;     //To be deleted; but will count number of pulls from the static json file so that we pull in a new data point each time
 
 void setup() {
-  fullScreen();
+  //fullScreen();
 
-  //size(1024,768);
+  size(1024,768);
   
     
   //create an array showing the last 8 hours of data: 1024px / 8hrs = 128px per 1hour
   //128px / 4 = 32px per 15 mins
   //4x8 = 32 data pulls in 8 hrs
     
-  pulls = 32;             //number of data pulls to display; whould be divisable by width and no more than width; recommended to be at least 32 for a 1024 pixel screen
+  pulls = 8;             //number of data pulls to display; whould be divisable by width and no more than width; recommended to be at least 32 for a 1024 pixel screen
   frac = width/pulls;     //number of pixels in each section
   
   currentState = new float [width][height];
@@ -48,8 +48,8 @@ void draw() {
   
   drawScreen(nextState, currentState);
   
-  //printProduction(currentState);  //exports image for AR
-  //printUsage(currentState);      //exports image for AR
+  printProduction(nextState);  //exports image for AR
+  printUsage(nextState);      //exports image for AR
   
   if (count == 0) {
     numPulls++;
@@ -65,7 +65,7 @@ void draw() {
   //delay(900); //delay in seconds between each data pull; 900 if pulling every 15 minutes
   
   
-  //need to confirm the initial data flow is correct; 0,0 should not be 0,0 of the json file
+  //need to confirm the initial data flow is correct; 0,0 should not be 0,0 of the json file; try changing the start value of the getScreenState to "twoDArray.length - (i*frac)"
   //decide how often the print image functions should run. 
   //Currently they will export each time the 2d array is drawn, which is about every 30 seconds. 
   //Is this too much for the program?
