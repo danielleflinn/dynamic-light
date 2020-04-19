@@ -14,8 +14,6 @@ int count;         //track number of times smooth function is run
 int numPulls;     //To be deleted; but will count number of pulls from the static json file so that we pull in a new data point each time
 
 void setup() {
-  //fullScreen();
-
   size(1024,768);
   
     
@@ -43,13 +41,13 @@ void setup() {
  
 void draw() {
   scale(1, -1);
-  translate(0, -height);      //make the bottom left corner the orgin
+  translate(0, -height);      //make the bottom left corner of screen the orgin
   background(#fcdc78);
   
   drawScreen(nextState, currentState);
   
-  printProduction(nextState);  //exports image for AR
-  printUsage(nextState);      //exports image for AR
+  //printProduction(nextState);  //exports image for AR
+  //printUsage(nextState);      //exports image for AR
   
   if (count == 0) {
     numPulls++;
@@ -85,11 +83,13 @@ void getNextState(float[][] twoDArray, float[][] storeSmooth, int count){  //a b
 void getScreenState(float[][] twoDArray, JSONArray values) { //gets the state for each cell in the 2D array to store current state
   JSONObject data; 
   JSONObject data2; 
-
-  for (int i = 0; i < pulls; i++) {  //calls data number of pull times
+  int j = 0;
+  
+  for (int i = pulls; i > 0; i--) {  //calls data number of pull times
       data = values.getJSONObject(i);
-      data2 = values.getJSONObject(i+1);
-      getSmooth(twoDArray, data, data2, i*frac); //get smooth calculates the columns in each frac, starts with i*frac
+      data2 = values.getJSONObject(i-1);
+      getSmooth(twoDArray, data, data2, j*frac); //get smooth calculates the columns in each frac, starts with i*frac
+      j++;
   }
 }
 
