@@ -3,9 +3,9 @@ JSONArray values;
 JSONObject data;
 PGraphics export;
 
-float[][] currentState;
-float[][] nextState; //the second array to be compared with the first
-float[][] storeSmooth;
+float[][] currentState;   //the current state to be displayed
+float[][] nextState;     //the second array to be compared with the first
+float[][] storeSmooth;   //a temporary array holding the states for pixels between 2 data pulls
 
 int pulls;
 int frac;
@@ -14,27 +14,25 @@ int count;         //track number of times smooth function is run
 int numPulls;     //To be deleted; but will count number of pulls from the static json file so that we pull in a new data point each time
 
 void setup() {
-  size(1024,768);
+  size(1024,768); //the resolution of the panels data to be displayed
   
-    
-  //create an array showing the last 8 hours of data: 1024px / 8hrs = 128px per 1hour
+  //show the last 8 hours of data: 1024px / 8hrs = 128px per 1hour
   //128px / 4 = 32px per 15 mins
   //4x8 = 32 data pulls in 8 hrs
     
-  pulls = 8;             //number of data pulls to display; whould be divisable by width and no more than width; recommended to be at least 32 for a 1024 pixel screen
+  pulls = 8;             //number of data pulls to display; would be divisable by width and no more than width; recommended to be at least 32 for a 1024 pixel screen
   frac = width/pulls;     //number of pixels in each section
   
-  currentState = new float [width][height];
+  currentState = new float [width][height]; //sets the 2d arrays to be the size of the screen
   nextState = new float[width][height];
-  storeSmooth = new float[frac][height];
+  storeSmooth = new float[frac][height];    //sets the temp array to be the size between 2 data points
 
-
-  values = loadJSONArray("data.json");
+  values = loadJSONArray("data.json"); //energy data 
   
   getScreenState(nextState, values); //getScreenState gets initial screen state, which calls json file number of pulls times;
   
   count = 1;
-  numPulls = pulls;   //set to pulls while testing with static JSON file; change this to secind to last Json object in file, thus bulling in the 2 most recent and new objects
+  numPulls = pulls;   //set to pulls while testing with static JSON file; change this to second to last Json object in file, thus pulling in the 2 most recent and new objects
   
   getSmooth(storeSmooth, values.getJSONObject(numPulls), values.getJSONObject(numPulls+1), 0);  //grabs the 2 most recent JSONObjects
   
@@ -47,8 +45,8 @@ void draw() {
   
   drawScreen(nextState, currentState);
   
-  //printProduction(nextState);  //exports image for AR, move both into one of the if statements so the program only exports everytime new data is called from the Json.
-  //printUsage(nextState);      //exports image for AR
+  printProduction(nextState);  //exports image for AR
+  printUsage(nextState);      //exports image for AR
   
   if (count == 0) {
     numPulls++;    //in final, this line to be deleted and numPulls will be a constant variable always pulling in the last 2 object / most recent objects in the json file
@@ -61,13 +59,8 @@ void draw() {
   if ( count == frac) {
     count = 0;
   }
-  //delay(900); //delay in seconds between each data pull; 900 if pulling every 15 minutes
-  
-  
-  //need to confirm the initial data flow is correct; 0,0 should not be 0,0 of the json file; try changing the start value of the getScreenState to "twoDArray.length - (i*frac)"
-  //decide how often the print image functions should run. 
-  //Currently they will export each time the 2d array is drawn, which is about every 30 seconds. 
-  //Is this too much for the program?
+  //delay(30000); //delay in milliseconds 
+ 
 }
 
 void getNextState(float[][] twoDArray, float[][] storeSmooth, int count){  //a basic push 2d array function; need to fix
@@ -89,7 +82,7 @@ void getScreenState(float[][] twoDArray, JSONArray values) { //gets the state fo
   for (int i = pulls; i > 0; i--) {  //calls data number of pull times
       data = values.getJSONObject(i);
       data2 = values.getJSONObject(i-1);
-      getSmooth(twoDArray, data, data2, j*frac); //get smooth calculates the columns in each frac, starts with i*frac
+      getSmooth(twoDArray, data, data2, j*frac);
       j++;
   }
 }
@@ -136,7 +129,7 @@ float getChange(float val, float val2) { //gets the change between 2 data values
 }
 
 int getCellState(float high, float low, int j) { //takes in the high (top of plug load and usage) and the low (bottom of plug load) and 
-                                          //returns the state of a cell; 0, 1, or 2; 0 being yellow, 1 being green, and 2 being blue
+                                                //returns the state of a cell; 0, 1, or 2; 0 being yellow, 1 being green, and 2 being blue
   if (j < low) {
     return 2;
   }
@@ -175,7 +168,7 @@ void drawScreen(float[][] nextState, float[][] currentState) {      //draws the 
 }
 
 void printProduction(float[][] twoDArray) { //exports image of the screen to be used in the AR experience;  2 one for usage and one for production
-  export = createGraphics(width, height);  // Create a new PGraphics object
+  export = createGraphics(width, height);  
   export.beginDraw();                   // Start drawing to the PGraphics object 
  
   for (int i = 0; i < width; i++) {
@@ -198,11 +191,11 @@ void printProduction(float[][] twoDArray) { //exports image of the screen to be 
     }
   }
   export.endDraw();                     
-  export.save("production.jpg");       //change this String to a path to save to a folder other than where the Sketch is 
+  export.save("production.jpg");       //change this String to destination path
 }
 
 void printUsage(float[][] twoDArray) {     //exports image of the screen to be used in the AR experience;  2 one for usage and one for production
-  export = createGraphics(width, height);  // Create a new PGraphics object
+  export = createGraphics(width, height);  
   export.beginDraw();                       // Start drawing to the PGraphics object 
  
   for (int i = 0; i < width; i++) {
@@ -225,7 +218,7 @@ void printUsage(float[][] twoDArray) {     //exports image of the screen to be u
     }
   }
   export.endDraw();                     
-  export.save("usage.jpg");             //change this String to a path to save to a folder other than where the Sketch is 
+  export.save("usage.jpg");             //change this String to destination path 
 }
 
 
