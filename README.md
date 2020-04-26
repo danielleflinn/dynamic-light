@@ -4,16 +4,16 @@ The current program "dynamiclight" references a static json file that includes m
 
 ## setup()
 
--set the size of the display area using size("width", "height")
--set the number of data points you want to be reflected in the display, by defining “pulls”; this should be 1 value less than the length of the json file
--set the “values” json array by adding the file path as a string
--set the “numPulls” variable to the index value of the second to last json object from the data file
+-set the size of the display area using size("width", "height") \s\s
+-set the number of data points you want to be reflected in the display, by defining “pulls”; this should be 1 value less than the length of the json file \s\s
+-set the “values” json array by adding the file path as a string \s\s
+-set the “numPulls” variable to the index value of the second to last json object from the data file \s\s
 
 ## draw()
 
--this is a constantly looping function
--in the first if statement, the “numPulls++” should be deleted; as the data file that the program references should be automatically updated (from external export) before each time the file is referenced thus, numPulls will be a static value.
--set the delay to (time in seconds/width) = delay in seconds * 1000 = delay in milliseconds. 
+-this is a constantly looping function \s\s
+-in the first if statement, the “numPulls++” should be deleted; as the data file that the program references should be automatically updated (from external export) before each time the file is referenced thus, numPulls will be a static value. \s\s
+-set the delay to (time in seconds/width) = delay in seconds * 1000 = delay in milliseconds. \s\s
 
 ## printProduction() & printUsage()
 
@@ -21,20 +21,20 @@ The current program "dynamiclight" references a static json file that includes m
 
 ## JSON file:
 
-The json file to be referenced should be formatted the following way:
-[
-  {
-    "Production": 0,
-    "Usage": 162.3564,
-    "Plugload": 8.8689
-  },
-  {
-    "Production": 0,
-    "Usage": 124.1661,
-    "Plugload": 8.8424
-  }
-]
-
--The number of json objects in the file should be equal to the pulls variable in the processing program plus 1.
--The first object in the file should be the oldest; with the final object in the file the most recent data values.
+The json file to be referenced should be formatted the following way:\s\s
+[\s\s
+  {\s\s
+    "Production": 0,\s\s
+    "Usage": 162.3564,\s\s
+    "Plugload": 8.8689\s\s
+  },\s\s
+  {\s\s
+    "Production": 0,\s\s
+    "Usage": 124.1661,\s\s
+    "Plugload": 8.8424\s\s
+  }\s\s
+]\s\s
+\s\s
+-The number of json objects in the file should be equal to the pulls variable in the processing program plus 1.\s\s
+-The first object in the file should be the oldest; with the final object in the file the most recent data values.\s\s
 -Make sure the export writing this file, exports and overwrites the file every time/pulls so that the file is ready when the processing program accesses it for new data.
