@@ -1,6 +1,6 @@
 # dynamic light
  
-This program uses the open source platform Processing to run. The program takes in 3 different data values and compares them to calculate a ration that is then displayed in a visual graph throught color and shape. 
+This program uses the open source platform Processing to run. The program takes in 3 different data values from a JSON array and compares them to calculate a ration that is then displayed in a visual graph throught color and shape. 
 
 ## Customize Program
 
