@@ -1,27 +1,34 @@
 # dynamic light
  
-The current program "dynamiclight" references a static json file that includes mock data. To make the program display a more accurate visual representation of the current data, the json file the program references needs to be updated in regular intervals. The instructions below outline what needs to be changed to in the program to work with a new json file. It also includes detail on how to customize the program for different sized displays, number of data points, and time range displahyed.
+This program uses the open source platform Processing to run. The program takes in 3 different data values and compares them to calculate a ration that is then displayed in a visual graph throught color and shape. 
 
-## setup()
+## Customize Program
 
--set the size of the display area using size("width", "height") <br/>
--set the number of data points you want to be reflected in the display, by defining “pulls”; this should be 1 value less than the length of the json file
--set the “values” json array by adding the file path as a string <br/>
--set the “numPulls” variable to the index value of the second to last json object from the data file
+Open the config.json file found in the "data" folder. Here is where you can customize the program.
 
-## draw()
+  - "Test": 
+   Set this to "Y" only while testing with a static data file that has at least 24hours of data points. Make sure you update the file and reset the program, before reaching the end of this file, otherwise the program will get an "index out of bounds" error. 
 
--this is a constantly looping function <br/>
--in the first if statement, the “numPulls++” should be deleted; as the data file that the program references should be automatically updated (from external export) before each time the file is referenced thus, numPulls will be a static value. <br/>
--set the delay to (time in seconds/width) = delay in seconds * 1000 = delay in milliseconds. 
+  - "displayedDataPoints": 
+   Set this to the number of data points you want to display. This should be 1 value less than the length of the data json file.
 
-## printProduction() & printUsage()
+  - "dataFilePath": 
+   Set this to the path of the data json file you wish the program to reference.
 
--these functions export the current image displayed; change the final line to the correct path destination so the AR experiences can reference these
+  - "delay": 
+   Set this to your desired delay for the program in miliseconds. This controls the speed at witch pixels move across the screen. For the program to work correctly; this value should follow this formula: (time in seconds/width) = delay in seconds * 1000 = delay in milliseconds.
 
-## JSON file:
+  - "exportFilePathProduction": 
+   Set this to the file path to where the exports of the display can be referenced by the AR experiences. Make sure the path ends in "Production.jpg".
+
+  - "exportFilePathUsage":
+   Set this to the file path to where the exports of the display can be referenced by the AR experiences. Make sure the path ends in "Usage.jpg"
+
+## Data JSON File
 
 The json file to be referenced should be formatted the following way: <br/>
+
+<code>
 [ <br/>
   { <br/>
     "Production": 0, <br/>
@@ -34,7 +41,92 @@ The json file to be referenced should be formatted the following way: <br/>
     "Plugload": 8.8424<br/>
   }<br/>
 ]<br/>
+</code>
 
--The number of json objects in the file should be equal to the pulls variable in the processing program plus 1. <br/>
--The first object in the file should be the oldest; with the final object in the file the most recent data values. <br/>
--Make sure the export writing this file, exports and overwrites the file every time/pulls so that the file is ready when the processing program accesses it for new data.
+- The number of json objects in the file should be equal to the "displayedDataPoints" variable in the config file plus 1. <br/>
+- The first object in the file should be the oldest; with the final object in the file the most recent data values.
+- Make sure the program writing this file will export and overwrite this file every time/displayedDataPoints so that the file is ready when the processing program accesses it for new data.
+
+## Function Explainations
+
+### setup()
+
+- sets the size of the display area using size("width", "height") 
+- loads the config file
+- sets variables based on the config file
+- loads the data file
+- calculates the initial screen state
+- calculates the first dif state between most recent 2 data points
+
+### draw()
+
+- this is a constantly looping function <br/>
+- draws the screen
+- exports images of the screen
+- checks to see if config file is testing with static data file
+- calls calc next state
+- counts this display 1 time, resents to zero if equal to numPixelsPerPoint
+- delays length of time as defined by config file
+
+
+### loadConfig 
+
+- takes in the config json object
+- sets variables based on the contents of this file
+
+### intScreenState
+
+- takes in 2D array for nextScreenState and the json array of data
+- uses the first series of objects to calculat the first state of the screen
+- this is only run once on program startup
+
+### test()
+
+- only to be run when using a large static data file; see "Customize Program" above
+- increases variable that defines which json object is being called by 1
+
+### calcNextState
+
+- takes in two 2D arrays, one holding the current screen state and one holding the temp calc difference state, and an int countPixels, which defines how many times this function has been called since referencing the data json file.
+- takes a row fromt he temp 2D array and adds it to the current screen state 2D array
+
+### calcDifState
+
+- takes in one 2D array, 2 json objects, and an int which defines the where the start index. Which should be 0 for any call to this function, other than the call intScreenState makes.
+- calculates the ratio between the 3 numbers in each json object
+- takes the difference between the 2 resulting ratios
+- assigns a value to each index in 2d array index based on calculated ratios, increminting the differnece between the ratios evenly
+
+### getHigh
+
+- takes in 1 json object
+- returns the ratio between usage and total energy (usage + production) multiplied by height of display
+
+### getLow
+
+- takes in 1 json object and 1 float value, defined as high
+- returns the difference between high variable and the ratio between plugload and total usage multiplied by the height of display
+
+### getChange
+
+- takes in 2 variables
+- returns the difference between the variables
+
+### getCellState
+
+- takes in a high and low variable and and the int of an index
+- returns 0, 1, 2 based on if the index is above, between, or below the high and low variables
+
+### drawScreen
+
+- takes in the nextScreenState and currentScreenState 2D arrays to compare
+- tells only the pixels in nextScreenState that are different than currentScreenState to change color
+- thus display doesn't have to redraw each pixel each time the program runs, but only redraws the pixels that are changing.
+
+### exportProduction
+
+- takes in the a 2D array and exports that state of the screen to an image with usage grayed out
+
+### exportUsage
+
+- takes in the a 2D array and exports that state of the screen to an image with production grayed out
