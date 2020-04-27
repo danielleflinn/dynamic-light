@@ -1,93 +1,114 @@
-Table table;
-JSONArray values;
-JSONObject data;
+//config variables
+private String test;
+private int displayedDataPoints; 
+private String dataFilePath;
+private int delay;
+private String exportFilePathProduction;
+private String exportFilePathUsage;
+
+private JSONArray values;
+private JSONObject data;
+
+private float[][] currentScreenState;   
+private float[][] nextScreenState;     
+private float[][] storeDifState;       //a temporary array holding the states for pixels between 2 data displayedDataPoints
+
+private int numPixelsPerPoint;    
+private int countPixels;                 
+private int numDisplayedDataPoints; 
+
 PGraphics export;
 
-float[][] currentState;   //the current state to be displayed
-float[][] nextState;     //the second array to be compared with the first
-float[][] storeSmooth;   //a temporary array holding the states for pixels between 2 data pulls
-
-int pulls;
-int frac;
-
-int count;         //track number of times smooth function is run 
-int numPulls;     //count number of pulls from the static json file so that we pull in a new data point each time
-
 void setup() {
-  size(1024,768); //the resolution of the panels or display 
+  size(1024,768);         //the resolution of the panels or display 
+  background(#fcdc78);
   
-  //show the last 8 hours of data: 1024px / 8hrs = 128px per 1hour
-  //128px / 4 = 32px per 15 mins
-  //4x8 = 32 data pulls in 8 hrs
-    
-  pulls = 8;             //number of data pulls to display; would be divisable by width and no more than width; recommended to be at least 32 8 hours of data on the 1024 pixel screen
-  frac = width/pulls;     //number of pixels in each section
+  JSONObject config = loadJSONObject("config.json");
+  loadConfig(config);
+          
+  numPixelsPerPoint = width/displayedDataPoints;    
   
-  currentState = new float [width][height]; //sets the 2d arrays to be the size of the screen
-  nextState = new float[width][height];
-  storeSmooth = new float[frac][height];    //sets the temp array to be the size between 2 data points
+  currentScreenState = new float [width][height]; 
+  nextScreenState = new float[width][height];
+  storeDifState = new float[numPixelsPerPoint][height];          //sets the temp array to be the size of pixels between each data point
 
-  values = loadJSONArray("data.json"); //energy data 
+  values = loadJSONArray(dataFilePath);    //energy data 
   
-  getScreenState(nextState, values); //getScreenState gets initial screen state, which calls json file number of pulls times;
+  intScreenState(nextScreenState, values); 
   
-  count = 1;
-  numPulls = pulls;   //set to pulls while testing with static JSON file; change this to second to last Json object in file, thus pulling in the 2 most recent and new objects
+  countPixels = 1;
+  numDisplayedDataPoints = displayedDataPoints;   
   
-  getSmooth(storeSmooth, values.getJSONObject(numPulls), values.getJSONObject(numPulls+1), 0);  //grabs the 2 most recent JSONObjects
+  calcDifState(storeDifState, values.getJSONObject(numDisplayedDataPoints), values.getJSONObject(numDisplayedDataPoints+1), 0);  
   
 }
  
 void draw() {
   scale(1, -1);
   translate(0, -height);      //make the bottom left corner of screen the orgin
-  background(#fcdc78);
+
+  drawScreen(nextScreenState, currentScreenState);
   
-  drawScreen(nextState, currentState);
+  exportProduction(nextScreenState);  
+  exportUsage(nextScreenState);      
   
-  printProduction(nextState);  //exports image for AR
-  printUsage(nextState);      //exports image for AR
-  
-  if (count == 0) {
-    numPulls++;    //in final, this line to be deleted and numPulls will be a constant variable always pulling in the last 2 object / most recent objects in the json file
-    getSmooth(storeSmooth, values.getJSONObject(numPulls), values.getJSONObject(numPulls+1), 0);
+  if (countPixels == 0) {
+    if (test.equals("Y")) {
+      test();
+    }
+    calcDifState(storeDifState, values.getJSONObject(numDisplayedDataPoints), values.getJSONObject(numDisplayedDataPoints+1), 0);
   }
-  
-  getNextState(nextState, storeSmooth, count);
-  count++;
-  
-  if ( count == frac) {
-    count = 0;
+
+  calcNextState(nextScreenState, storeDifState, countPixels);
+  countPixels++;
+    
+  if ( countPixels == numPixelsPerPoint) {
+    countPixels = 0;
   }
-  //delay(30000); //delay in milliseconds 
- 
+    
+  delay(delay);  
 }
 
-void getNextState(float[][] twoDArray, float[][] storeSmooth, int count){  //a basic push 2d array function; need to fix
-  for (int i = twoDArray.length -1; i > 0; i--) {  //indicates column
-     for(int j = 0; j < height; j++) {  //indicates row
-       twoDArray[i][j] = twoDArray[i-1][j];
-     }
-  }
-  for(int j = 0; j < height; j++) {  //indicates row
-       twoDArray[0][j] = storeSmooth[count][j];
-     }
+private void loadConfig(JSONObject config) {
+    
+  test = config.getString("test");
+  displayedDataPoints = config.getInt("displayedDataPoints");  
+  dataFilePath = config.getString("dataFilePath");
+  delay = config.getInt("delay");
+  exportFilePathProduction = config.getString("exportFilePathProduction");
+  exportFilePathUsage = config.getString("exportFilePathUsage");
+  
 }
 
-void getScreenState(float[][] twoDArray, JSONArray values) { //gets the state for each cell in the 2D array to store current state
+private void intScreenState(float[][] twoDArray, JSONArray values) { 
   JSONObject data; 
   JSONObject data2; 
   int j = 0;
   
-  for (int i = pulls; i > 0; i--) {  //calls data number of pull times
+  for (int i = displayedDataPoints; i > 0; i--) {  
       data = values.getJSONObject(i);
       data2 = values.getJSONObject(i-1);
-      getSmooth(twoDArray, data, data2, j*frac);
+      calcDifState(twoDArray, data, data2, j*numPixelsPerPoint);
       j++;
   }
 }
 
-void getSmooth(float[][] twoDArray, JSONObject data, JSONObject data2, int start) {   //calculates the high and low points for the pixels between the actual data points 
+private void test() {     
+      numDisplayedDataPoints++;    
+}
+
+private void calcNextState(float[][] twoDArray, float[][] storeDifState, int countPixels){  //takes column of pixels from storeDifState and adds to calcNextState
+  for (int i = twoDArray.length -1; i > 0; i--) {  
+     for(int j = 0; j < height; j++) {  
+       twoDArray[i][j] = twoDArray[i-1][j];
+     }
+  }
+  for(int j = 0; j < height; j++) {  
+       twoDArray[0][j] = storeDifState[countPixels][j];
+     }
+}
+
+private void calcDifState(float[][] twoDArray, JSONObject data, JSONObject data2, int start) {   //calculates the high and low points for the pixels between the actual data points 
   float high = getHigh(data);
   float low = getLow(data, high);
   
@@ -99,11 +120,11 @@ void getSmooth(float[][] twoDArray, JSONObject data, JSONObject data2, int start
   float low2 = getLow(data2, high2);
  
 
-  float highChange = (getChange(high, high2)) / frac;
-  float lowChange = (getChange(low, low2)) / frac;
+  float highChange = (getChange(high, high2)) / numPixelsPerPoint;
+  float lowChange = (getChange(low, low2)) / numPixelsPerPoint;
 
-  for (int i = start + 1; i < start + frac; i++) {    //sets the states for the remainder of the columns between each data point
-     for(int j = 0; j < height; j++) {                //indicates row
+  for (int i = start + 1; i < start + numPixelsPerPoint; i++) {    //sets the states for the remainder of the columns between each data point
+     for(int j = 0; j < height; j++) {               
        twoDArray[i][j] = getCellState(high, low, j);
      }
       high = high + highChange;
@@ -111,20 +132,20 @@ void getSmooth(float[][] twoDArray, JSONObject data, JSONObject data2, int start
   } 
 }
 
-float getHigh(JSONObject data) { //calculates the ratio between input values and returns the hieght
+private float getHigh(JSONObject data) { 
   float pro = data.getFloat("Production");
   float use = data.getFloat("Usage");
-  return (use/(use+pro))*height; //multiply by height to get number of pixels that should be in usage section
+  return (use/(use+pro))*height; 
 }
 
-float getLow(JSONObject data, float high) { //calculates the ratio between input values and returns the hieght
+private float getLow(JSONObject data, float high) { 
   float pro = data.getFloat("Production");
   float use = data.getFloat("Usage");
   float plug = data.getFloat("Plugload");
-  return (high - (plug/(use+pro))*height); //take the height from usage and subtract plug load height (low) so that plug load starts at the top of usage
+  return (high - (plug/(use+pro))*height);
 }
 
-float getChange(float val, float val2) { //gets the change between 2 data values to find the "smooth"
+float getChange(float val, float val2) { 
   return val2 - val;
 }
 
@@ -141,17 +162,17 @@ int getCellState(float high, float low, int j) { //takes in the high (top of plu
   }
 }
 
-void drawScreen(float[][] nextState, float[][] currentState) {      //draws the screen state
+private void drawScreen(float[][] nextScreenState, float[][] currentScreenState) {     
   for (int i = 0; i < width; i++) {
     for (int j = 0; j < height; j++){
       
-      if (nextState[i][j] != currentState[i][j]) {
-        if (nextState[i][j] == 2) {
+      if (nextScreenState[i][j] != currentScreenState[i][j]) {
+        if (nextScreenState[i][j] == 2) {
           noStroke();
           fill(#296196);    //blue
           square(i, j, 1);
         }
-        else if (nextState[i][j] == 1) {
+        else if (nextScreenState[i][j] == 1) {
           noStroke();
           fill(#41948e);    //green
           square(i, j, 1);
@@ -161,14 +182,15 @@ void drawScreen(float[][] nextState, float[][] currentState) {      //draws the 
           fill(#fcdc78);    //yellow
           square(i, j, 1);
         }
+        nextScreenState[i][j] = nextScreenState[i][j];
       }
     }
   }
 }
 
-void printProduction(float[][] twoDArray) { //exports image of the screen to be used in the AR experience;  2 one for usage and one for production
+private void exportProduction(float[][] twoDArray) { 
   export = createGraphics(width, height);  
-  export.beginDraw();                   // Start drawing to the PGraphics object 
+  export.beginDraw();                   
  
   for (int i = 0; i < width; i++) {
     for (int j = 0; j < height; j++){
@@ -190,12 +212,12 @@ void printProduction(float[][] twoDArray) { //exports image of the screen to be 
     }
   }
   export.endDraw();                     
-  export.save("production.jpg");       //change this String to destination path
+  export.save(exportFilePathProduction);       
 }
 
-void printUsage(float[][] twoDArray) {     //exports image of the screen to be used in the AR experience;  2 one for usage and one for production
+private void exportUsage(float[][] twoDArray) {     
   export = createGraphics(width, height);  
-  export.beginDraw();                       // Start drawing to the PGraphics object 
+  export.beginDraw();                       
  
   for (int i = 0; i < width; i++) {
     for (int j = 0; j < height; j++){
@@ -217,7 +239,7 @@ void printUsage(float[][] twoDArray) {     //exports image of the screen to be u
     }
   }
   export.endDraw();                     
-  export.save("usage.jpg");             //change this String to destination path 
+  export.save(exportFilePathUsage);             
 }
 
 
