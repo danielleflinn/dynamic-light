@@ -1,0 +1,8 @@
+{
+   "test": "Y", 
+   "displayedDataPoints": 8,
+   "dataFilePath": "data.json",
+   "delay": 0,
+   "exportFilePathProduction": "Production.jpg",
+   "exportFilePathUsage": "Usage.jpg"
+}
