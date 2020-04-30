@@ -26,7 +26,7 @@ Output: None
 
 - sets variables based on the contents of json object
 
-### intScreenState
+### initScreenState
 
 Inputs: float[][] 2dArray, JSONArray values
 Output: None

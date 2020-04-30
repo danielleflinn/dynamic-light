@@ -33,7 +33,7 @@ void setup() {
 
   values = loadJSONArray(dataFilePath);    //energy data 
   
-  intScreenState(nextScreenState, values); 
+  initScreenState(nextScreenState, values); 
   
   countPixels = 1;
   numDisplayedDataPoints = displayedDataPoints;   
@@ -80,7 +80,7 @@ private void loadConfig(JSONObject config) {
   
 }
 
-private void intScreenState(float[][] twoDArray, JSONArray values) { 
+private void initScreenState(float[][] twoDArray, JSONArray values) { 
   JSONObject data; 
   JSONObject data2; 
   int j = 0;
