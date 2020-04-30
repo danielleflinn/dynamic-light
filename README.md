@@ -1,6 +1,6 @@
 # Dynamic Light Overview
  
-This program uses the open source platform Processing to run. The program takes in 3 different data values and compares them to calculate a ration that is then displayed in a visual graph throught color and shape. 
+This program uses the open source platform Processing to run. The program takes in 3 different data values from a JSON array and compares them to calculate a ration that is then displayed in a visual graph throught color and shape. 
 
 The program references a json file to pull in a set amount of data. This file should be updated on regular intervals. For example, if the display is showing 8 hours of data with 32 data points (one data value for every 15 minutes), the json data file should be updated every fifteen minutes and should contain 33 data values (see below for more details).
 
