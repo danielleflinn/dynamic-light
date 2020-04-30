@@ -15,8 +15,8 @@ This program uses the open source platform Processing. The program takes in 3 di
 
 4. "dataFilePath": Set this to the api url or the path of the json data
 
-5.  "delay": (time displayed in seconds/1024) * 1000 = delay in milliseconds.
-       1024 == pixel width of display 
+5.  "delay": (time displayed in seconds/1024) * 1000 = delay in milliseconds.<br/>
+    (1024 = pixel width of display)
 
 The final 2 variables are the file paths which will need to be accessible by the AR experiences.
 
@@ -44,10 +44,10 @@ The json data formatting: <br/>
   }
 ]
 </code>
-
+<br/>
 - number of json objects = "displayedDataPoints" + 1. 
 - jsonarray[0] = the oldest data, jsonarray[jsonarray.size()] == most recent data
-- update intervals by: (time/displayedDataPoints) 
+- frequency of update: (time/displayedDataPoints) 
 
 Example: if the display is showing 8 hours of data with 32 data points, the json data should be updated every 15 minutes and should contain 33 data values.
 
