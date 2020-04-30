@@ -31,18 +31,18 @@ The program is designed to get json data from an api or json file. The json data
 The json data formatting: <br/>
 
 <code>
-[ <br/>
-  { <br/>
-    "Production": 0, <br/>
-    "Usage": 162.3564, <br/>
-    "Plugload": 8.8689<br/>
-  }, <br/>
-  { <br/>
-    "Production": 0,<br/>
-    "Usage": 124.1661,<br/>
-    "Plugload": 8.8424<br/>
-  }<br/>
-]<br/>
+[ 
+  { 
+    "Production": 0, 
+    "Usage": 162.3564, 
+    "Plugload": 8.8689
+  }, 
+  { 
+    "Production": 0,
+    "Usage": 124.1661,
+    "Plugload": 8.8424
+  }
+]
 </code>
 
 - number of json objects = "displayedDataPoints" + 1. 
@@ -53,7 +53,7 @@ Example: if the display is showing 8 hours of data with 32 data points, the json
 
 
 
-## Alternative Fun Method
+## Alternative Run Method
 
 You can run the program in test mode with a larger amount of json data and update the file less frequently. 
 
