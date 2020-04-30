@@ -45,6 +45,7 @@ The json data formatting: <br/>
 ]
 </code>
 <br/>
+<br/>
 
 - number of json objects = "displayedDataPoints" + 1. 
 - jsonarray[0] = the oldest data, jsonarray[jsonarray.size()] == most recent data
