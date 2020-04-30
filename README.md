@@ -1,13 +1,17 @@
-# dynamic light
+# Dynamic Light Overview
  
 This program uses the open source platform Processing to run. The program takes in 3 different data values and compares them to calculate a ration that is then displayed in a visual graph throught color and shape. 
+
+The program references a json file to pull in a set amount of data. This file should be updated on regular intervals. For example, if the display is showing 8 hours of data with 32 data points (one data value for every 15 minutes), the json data file should be updated every fifteen minutes and should contain 33 data values (see below for more details).
+
+Alternatively, you can run the program in test mode with a large data file and update the file less frequently. For example, the data file could contain 24 hours of data points showing values every 15 minutes (a total of 96 json objects). However, the program would only display 32 of these data points at a time (8 hours) and would pull in 15 minutes of data every 15 minutes. Thus, reaching the end of the data file about 24 hours later. However, in this model the data on the screen would reflect the previous day's energy performacne. We recommend showing the current day's values. 
 
 ## Customize Program
 
 Open the config.json file found in the "data" folder. Here is where you can customize the program.
 
   - "Test": 
-   Set this to "Y" only while testing with a static data file that has at least 24hours of data points. Make sure you update the file and reset the program, before reaching the end of this file, otherwise the program will get an "index out of bounds" error. 
+   Set this to "N". Use "Y" only while testing with a static data file that has at least 24hours of data points. Make sure you update the file and reset the program, before reaching the end of this file, otherwise the program will get an "index out of bounds" error. 
 
   - "displayedDataPoints": 
    Set this to the number of data points you want to display. This should be 1 value less than the length of the data json file.
@@ -45,7 +49,7 @@ The json file to be referenced should be formatted the following way: <br/>
 
 - The number of json objects in the file should be equal to the "displayedDataPoints" variable in the config file plus 1. <br/>
 - The first object in the file should be the oldest; with the final object in the file the most recent data values.
-- Make sure the program writing this file will export and overwrite this file every time/displayedDataPoints so that the file is ready when the processing program accesses it for new data.
+- Make sure the program writing this file will export and overwrite this file every (time/displayedDataPoints) so that the file is ready when the processing program accesses it for new data.
 
 ## Function Explainations
 
