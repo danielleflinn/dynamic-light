@@ -11,7 +11,7 @@ private JSONObject data;
 
 private float[][] currentScreenState;   
 private float[][] nextScreenState;     
-private float[][] storeDifState;       //a temporary array holding the states for pixels between 2 data displayedDataPoints
+private float[][] storeDifState;       //a temporary array holding the states for pixels between 2 displayedDataPoints
 
 private int numPixelsPerPoint;    
 private int countPixels;                 
@@ -21,7 +21,6 @@ PGraphics export;
 
 void setup() {
   size(1024,768);         //the resolution of the panels or display 
-  background(#fcdc78);
   
   JSONObject config = loadJSONObject("config.json");
   loadConfig(config);
@@ -46,6 +45,7 @@ void setup() {
 void draw() {
   scale(1, -1);
   translate(0, -height);      //make the bottom left corner of screen the orgin
+  background(#fcdc78);
 
   drawScreen(nextScreenState, currentScreenState);
   
@@ -94,7 +94,10 @@ private void intScreenState(float[][] twoDArray, JSONArray values) {
 }
 
 private void test() {     
-      numDisplayedDataPoints++;    
+      numDisplayedDataPoints++;
+      if (numDisplayedDataPoints >= values.size() - 1) {
+        numDisplayedDataPoints = 0;
+      }
 }
 
 private void calcNextState(float[][] twoDArray, float[][] storeDifState, int countPixels){  //takes column of pixels from storeDifState and adds to calcNextState
