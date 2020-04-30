@@ -6,12 +6,10 @@ We recommend displaying 8 hours of data on the display at a time. This time rang
 
 The number of json objects in the json file reflects how accurate the visual display is to the actual energy data; for 8 hours of data we recommend one data point every 15 minutes, or 32 data points. This translates to 33 json objects, since the display is always moving we need 1 extra data point to help calculate the incoming pixel values.  
 
-The json file should then be updated every 15 minutes to provide the program with one new data point. Note that only one new object is added to the end of the file and the oldest object is taken off; the others objects between simply move down one index value. 
+The json file should then be updated every 15 minutes to provide the program with one new data point. Note that only one new object is added to the end of the file and the oldest object is taken off; the other objects between simply move down one index value. 
 
 <bq>
 For example, if we have a json array with 3 values, [0, 1, 2], when the file is updated, the new file should reflect [1, 2, 3]; with "3" being the new data value. </bq>
-
-We recommend using this setup so if the program loses power, or is turned off, the older data is still stored in the json file and the program can reference this to generate a full screen state right away, rather than waiting a full cycle to pull in 8 hours of data. 
 
 
 ## Recommendations for config.json
@@ -20,4 +18,4 @@ We recommend using this setup so if the program loses power, or is turned off, t
 - displayedDataPoints: 32
 - delay: 28000 (28 seconds)
 
-- the other config variables (file paths) must be set according to the internal server McKinstry uses 
+- the other config variables must be set according to the internal servers and systems client uses
