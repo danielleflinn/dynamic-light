@@ -14,8 +14,14 @@ For example, if we have a json array with 3 values, [0, 1, 2], when the file is 
 
 ## Recommendations for config.json
 
-- Test: "N"
-- displayedDataPoints: 32
-- delay: 28000 (28 seconds)
 
-- the other config variables must be set according to the internal servers and systems client uses
+```
+{
+   "test": "No", 
+   "displayedDataPoints": 32,
+   "dataFilePath": [your url or path here],
+   "delay": 28000,
+   "exportFilePathProduction": "[your path here]/Production.jpg",
+   "exportFilePathUsage": "[your path here]Usage.jpg"
+}
+```
