@@ -22,6 +22,6 @@ For example, if we have a json array with 3 values, [0, 1, 2], when the file is 
    "dataFilePath": [your url or path here],
    "delay": 28000,
    "exportFilePathProduction": "[your path here]/Production.jpg",
-   "exportFilePathUsage": "[your path here]Usage.jpg"
+   "exportFilePathUsage": "[your path here]/Usage.jpg"
 }
 ```
