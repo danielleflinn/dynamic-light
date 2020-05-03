@@ -30,7 +30,7 @@ The program is designed to get json data from an api or json file. The json data
 
 The json data formatting for one json object: <br/>
 
-<code>
+```
 [ 
   { 
     "Production": 0, 
@@ -38,7 +38,7 @@ The json data formatting for one json object: <br/>
     "Plugload": 8.8689
   }, 
 ]
-</code>
+```
 <br/>
 <br/>
 
