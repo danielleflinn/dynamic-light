@@ -64,4 +64,5 @@ We recommend showing the current day's values by using the method noted above.
 To use the alternative run method, follow the steps bellow:
 
 1. Set all variables in config file as you normally would (see above). 
-2. Change "Test" to "Y"
+2. Set "Test" to "Y"
+3. Ensure the first json object in the new data is the same object from the previous data set
